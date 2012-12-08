@@ -3,7 +3,7 @@
 ![def](http://static.benet.ai/skitch/saucer-20121208-004907.png)
 
 Saucer is an opinionated template project for coffee/javascript development.
-It gets you up and running with the following:
+It gets you up and running with the following tools:
 
 * [coffeescript](http://coffeescript.org/) for awesomeness
 * [grunt](http://gruntjs.com/) for the task-based build system
@@ -16,3 +16,11 @@ It gets you up and running with the following:
 * [closure compiler](https://developers.google.com/closure/) for dependencies
     and minification
 
+and the frontend libs:
+
+* [jquery](http://jquery.com/) for dom manipulation
+* [underscore](http://underscorejs.org) for awesome utilities
+* [backbone](http://backbonejs.org/) for awesome mvc apps
+* [bootstrap](twitter.github.com/bootstrap/) for awesome style
+
+(if you don't need any of these, you can just delete them).
