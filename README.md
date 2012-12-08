@@ -115,9 +115,7 @@ Common workflow:
 
 ### writing specs
 
-Write your [jasmine specs](http://pivotal.github.com/jasmine/#section-Suites:_<code>describe</code>_Your_Tests) in the `test` part of the source tree. Your `test` directory should mirror your `src` directory, with every `filename.{coffee,js}` having a corresponding `filename.spec.{coffee,js}`.
-
-This 1-1 `test` to `src` correspondence:
+Write your [jasmine specs](http://pivotal.github.com/jasmine/#section-Suites:_<code>describe</code>_Your_Tests) in the `test` part of the source tree. Your `test` directory should mirror your `src` directory, with every `filename.{coffee,js}` having a corresponding `filename.spec.{coffee,js}`. This one-to-one `test` to `src` correspondence:
 
 * makes sure you do write a `test` file for every `src` file.
 * easily identifies and properly scopes spec files, for simpler debugging.
