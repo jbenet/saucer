@@ -24,3 +24,23 @@ and the frontend libs:
 * [bootstrap](twitter.github.com/bootstrap/) for awesome style
 
 (if you don't need any of these, you can just delete them).
+
+## source tree
+
+Saucer organizes the code thus:
+
+    ├── Gruntfile.coffee - the grunt task file
+    ├── README.md        - this file
+    ├── build            - the build directory, for compiled code
+    ├── coffee           - coffeescript code
+    │   ├── src          - coffeescript source files
+    │   └── test         - coffeescript test files
+    ├── js               - javascript code (generated from coffee/)
+    │   ├── deps.js      - generated dependencies file (closure)
+    │   ├── src          - javascript source files
+    │   └── test         - javascript test files
+    ├── lib              - libraries
+    │   ├── bootstrap    - bootstrap js/css library
+    │   └── closure      - closure library + compiler
+    ├── node_modules     - npm installed modules
+    └── package.json     - package info
