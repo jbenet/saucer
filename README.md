@@ -65,3 +65,53 @@ Common workflow:
 * test with `grunt --config Gruntfile.coffee test`
 * test with `grunt --config Gruntfile.coffee testserver`
 * compile code with `grunt --config Gruntfile.coffee compile`
+
+## testing
+
+### writing specs
+
+Write your [jasmine specs](http://pivotal.github.com/jasmine/#section-Suites:_<code>describe</code>_Your_Tests) in the `test` part of the source tree. Your `test` directory should mirror your `src` directory, with every `filename.{coffee,js}` having a corresponding `filename.spec.{coffee,js}`.
+
+This 1-1 `test` to `src` correspondence:
+
+* makes sure you do write a `test` file for every `src` file.
+* easily identifies and properly scopes spec files, for simpler debugging.
+
+For example, in coffeescript:
+
+    coffee
+    ├── src
+    │   ├── hello.coffee
+    │   └── main.coffee
+    └── test
+        ├── hello.spec.coffee
+        └── main.spec.coffee
+
+And in javascript:
+
+    js
+    ├── deps.js
+    ├── src
+    │   ├── hello.js
+    │   └── main.js
+    └── test
+        ├── hello.spec.js
+        └── main.spec.js
+
+### running from the command line
+
+You can run the tests from the commandline (using phantomjs):
+
+    grunt --config Gruntfile.coffee test
+
+![test](http://static.benet.ai/skitch/saucer-test-20121208-035832.png)
+
+### running with a webserver
+
+You can run the tests from the commandline (using phantomjs):
+
+    grunt --config Gruntfile.coffee testserver
+
+![server](http://static.benet.ai/skitch/saucer-webserver-20121208-043214.png)
+
+![web-all](http://static.benet.ai/skitch/saucer-all-20121208-040013.png)
