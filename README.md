@@ -25,6 +25,51 @@ and the frontend libs:
 
 (if you don't need any of these, you can just delete them).
 
+## install
+
+### clone the source
+
+    git clone https://github.com/jbenet/saucer.git my-project
+    cd my-project
+
+### install dependencies
+
+* [node and npm](http://nodejs.org/download/)
+    or in osx:
+
+        brew install nodejs
+
+* [phantomjs](http://phantomjs.org/)
+    or in osx:
+
+        brew install phantomjs
+
+* [closure compiler](http://code.google.com/p/closure-compiler/downloads/list)
+    or in osx:
+
+        brew install closure-compiler
+
+### setup google closure
+
+Move (or create a symlink to) the closure compiler jar to
+`lib/closure/compiler.jar`. For example, in osx:
+
+    % mv ~/Downloads/compiler-latest/compiler.jar lib/closure/.
+
+or
+
+    % ln -s /usr/local/Cellar/closure-compiler/20120917/libexec/build/compiler.jar lib/closure/.
+
+Initialize google closure-tools submodule:
+
+    % git submodule init
+    % git submodule update
+
+### install node modules
+
+    % npm install
+
+
 ## source tree
 
 Saucer organizes the code thus:
