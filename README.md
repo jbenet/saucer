@@ -44,3 +44,24 @@ Saucer organizes the code thus:
     │   └── closure      - closure library + compiler
     ├── node_modules     - npm installed modules
     └── package.json     - package info
+
+## grunt tasks
+
+Available tasks (ignore others):
+
+        coffee  Compile CoffeeScript files (coffee/ to js/)
+          deps  Generates file dependencies (js/deps.js)
+          test  Runs jasmine tests in the commandline.
+    testserver  Runs jasmine tests in a webserver.
+       compile  Closure compiles the source (js/src/).
+       default  Alias for "compile" task.
+         watch  Watches coffee/ and re-runs "deps"
+         clean  Clear files and folders (js/, build/)
+
+Common workflow:
+
+* write code in `coffee/src/`
+* write corresponding tests in `coffee/test/`
+* test with `grunt --config Gruntfile.coffee test`
+* test with `grunt --config Gruntfile.coffee testserver`
+* compile code with `grunt --config Gruntfile.coffee compile`
