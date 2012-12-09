@@ -11,7 +11,7 @@ module.exports = (grunt) ->
     # javascript sources
     js_dir: 'js'
     js_src: 'js/**/*.js'
-    js_specs: 'js/test/**/*.js'
+    js_specs: 'js/test/**/*.spec.js'
 
     # build directory
     build_dir: 'build'
