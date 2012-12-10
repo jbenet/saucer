@@ -124,7 +124,7 @@ module.exports = (grunt) ->
     # task to watch sources for changes and recompile during development
     watch:
       files: paths.coffee_src
-      tasks: 'deps' # or 'test', or 'testserver' :)
+      tasks: 'deps' # or 'test', or 'server' :)
 
     # task to run shell commands
     exec:
@@ -158,5 +158,5 @@ module.exports = (grunt) ->
   grunt.registerTask 'compile', ['coffee', 'exec:mkbuild', 'closureCompiler']
   grunt.registerTask 'deps', ['coffee', 'closureDepsWriter']
   grunt.registerTask 'test', ['deps', 'jasmine', 'clean:test']
-  grunt.registerTask 'testserver', ['deps', 'jasmineSpecServer', 'watch']
+  grunt.registerTask 'server', ['deps', 'jasmineSpecServer', 'watch']
   grunt.registerTask 'default', ['compile']
