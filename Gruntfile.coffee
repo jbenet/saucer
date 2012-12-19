@@ -28,6 +28,23 @@ module.exports = (grunt) ->
       'node_modules/grunt-jasmine-spec-server/lib/bootstrap/bootstrap.min.js'
     ]
 
+    # Paths to copy into the build directory:
+    #
+    #   build_includes:
+    #     '/'           : [ '<src-path-1>', '<src-path-2>' ]
+    #     '<dest-path>' : [ '<src-path-3>', '<src-path-4>/' ]
+    #
+    # The above will copy <src-path-1> and <src-path-2> into paths.build_dir;
+    # <src-path-3> into <paths.build_dir>/<dest-path>; and the contents of
+    # <src-path-4> into <paths.build_dir>/<dest-path>.
+    #
+    # Note that, if a source path ends in a '/' and points to a directory, the
+    # contents of the directory are copied, rather than the directory itself.
+    build_includes:
+      'lib/underscore': 'node_modules/underscore/underscore*.js'
+      'lib/backbone':   'node_modules/backbone/backbone*.js'
+      'lib/jquery':     'node_modules/jquery-browser/lib/jquery.js'
+
 
   # YOU SHOULD NOT NEED TO MODIFY BELOW THIS LINE.
   # you may have to... if things break...
@@ -131,6 +148,28 @@ module.exports = (grunt) ->
       # create the build directory. closure errors out if it isn't there...
       mkbuild: command: "mkdir -p #{paths.build_dir}"
 
+      # copy necessary files and directories into build
+      build_includes:
+        stdout: true
+        command: (grunt) ->
+          # ensure build_dir exists
+          build_dir = paths.build_dir
+          unless build_dir then build_dir = '.'
+
+          # generate commands
+          cmds = []
+          for dst, includes of paths.build_includes
+            dst_path = "#{build_dir}/#{dst}"
+            cmds.push "mkdir -p #{dst_path}"
+
+            unless typeof includes is Array
+              includes = [includes]
+
+            for include in includes
+              cmds.push "cp -Rf #{include} #{dst_path}"
+
+          cmds.join ';\n'
+
 
     # task to clean up directories
     clean:
@@ -155,7 +194,8 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-jasmine-spec-server'
 
   # Register tasks
-  grunt.registerTask 'compile', ['coffee', 'exec:mkbuild', 'closureCompiler']
+  grunt.registerTask 'compile', ['coffee', 'exec:mkbuild', 'closureCompiler',
+                                 'exec:build_includes']
   grunt.registerTask 'deps', ['coffee', 'closureDepsWriter']
   grunt.registerTask 'test', ['deps', 'jasmine', 'clean:test']
   grunt.registerTask 'server', ['deps', 'jasmineSpecServer', 'watch']
