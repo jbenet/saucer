@@ -1,5 +1,6 @@
 module.exports = (grunt) ->
 
+  _ = require 'underscore'
 
   # paths setup - separate as some modules dont process templates correctly
   paths =
@@ -28,27 +29,37 @@ module.exports = (grunt) ->
       'node_modules/grunt-jasmine-spec-server/lib/bootstrap/bootstrap.min.js'
     ]
 
-    # Paths to copy into the build directory:
-    #
-    #   build_includes:
-    #     '/'           : [ '<src-path-1>', '<src-path-2>' ]
-    #     '<dest-path>' : [ '<src-path-3>', '<src-path-4>/' ]
-    #
-    # The above will copy <src-path-1> and <src-path-2> into paths.build_dir;
-    # <src-path-3> into <paths.build_dir>/<dest-path>; and the contents of
-    # <src-path-4> into <paths.build_dir>/<dest-path>.
-    #
-    # Note that, if a source path ends in a '/' and points to a directory, the
-    # contents of the directory are copied, rather than the directory itself.
-    build_includes:
-      'lib/underscore': 'node_modules/underscore/underscore*.js'
-      'lib/backbone':   'node_modules/backbone/backbone*.js'
-      'lib/jquery':     'node_modules/jquery-browser/lib/jquery.js'
-
 
   # YOU SHOULD NOT NEED TO MODIFY BELOW THIS LINE.
   # you may have to... if things break...
 
+
+  # Paths to copy into the build directory:
+  #
+  #   build_includes:
+  #     '<dest-path-1>'   : '<src-path-1>'
+  #     '<dest-path-2>/'  : '<src-path-2>/**'
+  #     '<dest-path-3>/'  : [ '<src-path-3>', '<src-path-4>' ]
+  #
+  # The above will copy:
+  #   <src-path-1>  to <paths.build_dir>/<src-dest-1> (single file)
+  #   <src-path-2>/ to <paths.build_dir>/<dest-path-2> (directory and contents)
+  #   <src-path-3> and <src-path-4> into <paths.build_dir>/<dest-path-3>/
+  #
+  # Note that:
+  # - if a source path ends in a '/**' and points to a directory, the
+  #   contents of the directory are copied, rather than the directory itself.
+  # - destination paths _must_ end in a '/' to be directories. e.g.
+  #   `'dest': 'src'`  copies `src` to `<paths.build_dir>/dest`
+  #   `'dest/': 'src/**'` copies `src` to `<paths.build_dir>/dest/src`
+  paths.build_includes =
+    'lib/jquery/':  'node_modules/jquery-browser/lib/jquery*.js'
+    'lib/underscore/':  'node_modules/underscore/underscore*.js'
+    'lib/backbone/':  'node_modules/backbone/backbone*.js'
+
+  # prepend all dst paths with the build dir.
+  paths.build_includes = _.object _.map paths.build_includes, (src, dst) ->
+    [ "#{paths.build_dir}/#{dst}", src ]
 
   # google closure paths
   paths.closure =
@@ -146,30 +157,12 @@ module.exports = (grunt) ->
     # task to run shell commands
     exec:
       # create the build directory. closure errors out if it isn't there...
-      mkbuild: command: "mkdir -p #{paths.build_dir}"
+      mkbuild: command: "mkdir -p \"#{paths.build_dir}\""
 
-      # copy necessary files and directories into build
-      build_includes:
-        stdout: true
-        command: (grunt) ->
-          # ensure build_dir exists
-          build_dir = paths.build_dir
-          unless build_dir then build_dir = '.'
-
-          # generate commands
-          cmds = []
-          for dst, includes of paths.build_includes
-            dst_path = "#{build_dir}/#{dst}"
-            cmds.push "mkdir -p #{dst_path}"
-
-            unless typeof includes is Array
-              includes = [includes]
-
-            for include in includes
-              cmds.push "cp -Rf #{include} #{dst_path}"
-
-          cmds.join ';\n'
-
+    # task to copy files into build
+    copy:
+      build:
+        files: paths.build_includes
 
     # task to clean up directories
     clean:
@@ -188,6 +181,7 @@ module.exports = (grunt) ->
   # Load tasks
   grunt.loadNpmTasks 'grunt-exec'
   grunt.loadNpmTasks 'grunt-coffee'
+  grunt.loadNpmTasks 'grunt-contrib-copy'
   grunt.loadNpmTasks 'grunt-contrib-clean'
   grunt.loadNpmTasks 'grunt-closure-tools'
   grunt.loadNpmTasks 'grunt-jasmine-runner'
@@ -195,7 +189,7 @@ module.exports = (grunt) ->
 
   # Register tasks
   grunt.registerTask 'compile', ['coffee', 'exec:mkbuild', 'closureCompiler',
-                                 'exec:build_includes']
+                                 'copy:build']
   grunt.registerTask 'deps', ['coffee', 'closureDepsWriter']
   grunt.registerTask 'test', ['deps', 'jasmine', 'clean:test']
   grunt.registerTask 'server', ['deps', 'jasmineSpecServer', 'watch']
