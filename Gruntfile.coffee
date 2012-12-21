@@ -135,7 +135,7 @@ module.exports = (grunt) ->
            # jscomp_off: ['checkTypes', 'fileoverviewTags'],
            # summary_detail_level: 3,
            js_output_file: paths.closure.compiled
-           output_wrapper: '"(function(){%output%}).call(this);"'
+           output_wrapper: '"\'use strict\';\n(function(){%output%}).call(this);"'
 
     # task to run jasmine tests through the commandline via phantomjs
     jasmine:
