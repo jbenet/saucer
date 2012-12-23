@@ -5,20 +5,35 @@ module.exports = (grunt) ->
   # paths setup - separate as some modules dont process templates correctly
   paths =
 
+    # build directory
+    build_dir: 'build'
+
+    # -- sources --
+
     # coffescript sources
     coffee_dir: 'coffee'
     coffee_src: 'coffee/**/*.coffee'
 
-    # javascript sources
-    js_dir: 'js'
-    js_src: 'js/src/**/*.js'
-    js_specs: 'js/test/**/*.spec.js'
+    # less sources
+    less_dir: 'less'
+    less_src: 'less/**/*.less'
 
-    # build directory
-    build_dir: 'build'
+    # -- compiled output --
+
+    # javascript sources
+    js_dir: 'build/js'
+    js_src: 'build/js/src/**/*.js'
+    js_specs: 'build/js/test/**/*.spec.js'
+
+    # css sources
+    css_dir: 'build/css'
+    css_src: 'build/css/**/*.css'
+    css_dest: 'build/css/hello.css'
 
     # minified target name
     minified: 'build/projectname.min.js'
+
+    # -- libraries --
 
     # libraries to load in the frontend
     frontend_libs: [
@@ -30,7 +45,7 @@ module.exports = (grunt) ->
     ]
 
 
-  # YOU SHOULD NOT NEED TO MODIFY BELOW THIS LINE.
+  # -- YOU SHOULD NOT NEED TO MODIFY BELOW THIS LINE --
   # you may have to... if things break...
 
 
@@ -73,6 +88,9 @@ module.exports = (grunt) ->
     # output file for the compiler
     compiled: paths.minified
 
+    # source map output filepath
+    source_map: "#{paths.minified}.map"
+
     # root of the sources that closure should use
     # silliness. because depswriter.py uses paths relative to closure library
     root_with_prefix: "'#{paths.js_dir} ../../../../../#{paths.js_dir}'"
@@ -113,6 +131,20 @@ module.exports = (grunt) ->
           preserve_dirs: true
           base_path: paths.coffee_dir
 
+    # task to compile .less stylesheets to .css
+    less:
+      # .less -> .css compilation and minification
+      prod:
+        src: paths.less_src
+        dest: paths.css_dest
+        options:
+          yuicompress: true
+
+      # .less -> .css compilation only
+      dev:
+        src: paths.less_src
+        dest: paths.css_dest
+
     # task to compute file dependencies (closure)
     closureDepsWriter:
       default:
@@ -136,6 +168,8 @@ module.exports = (grunt) ->
            # summary_detail_level: 3,
            js_output_file: paths.closure.compiled
            output_wrapper: '"\'use strict\';\n(function(){%output%}).call(this);"'
+           create_source_map: paths.closure.source_map
+           source_map_format: "V3"
 
     # task to run jasmine tests through the commandline via phantomjs
     jasmine:
@@ -154,11 +188,6 @@ module.exports = (grunt) ->
       files: paths.coffee_src
       tasks: 'deps' # or 'test', or 'server' :)
 
-    # task to run shell commands
-    exec:
-      # create the build directory. closure errors out if it isn't there...
-      mkbuild: command: "mkdir -p \"#{paths.build_dir}\""
-
     # task to copy files into build
     copy:
       build:
@@ -167,14 +196,24 @@ module.exports = (grunt) ->
     # task to clean up directories
     clean:
 
-      # the generated javascript sources
-      js: paths.js_dir
-
       # the generated build dir
       build: paths.build_dir
 
       # the generated jasmine-runner tester file
       test: ['_SpecRunner.html']
+
+    # task to run shell commands
+    exec:
+      # create the build directory. closure errors out if it isn't there...
+      mkbuild: command: "mkdir -p \"#{paths.build_dir}\""
+
+      process_source_maps:
+        stdout: true
+        command: (grunt) ->
+          "python build_scripts/process_source_maps.py
+           --compiled-source=#{paths.closure.compiled}
+           --source-map=#{paths.closure.source_map}
+           --web-root=#{paths.build_dir}"
 
 
 
@@ -183,13 +222,15 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-coffee'
   grunt.loadNpmTasks 'grunt-contrib-copy'
   grunt.loadNpmTasks 'grunt-contrib-clean'
+  grunt.loadNpmTasks 'grunt-contrib-less'
   grunt.loadNpmTasks 'grunt-closure-tools'
   grunt.loadNpmTasks 'grunt-jasmine-runner'
   grunt.loadNpmTasks 'grunt-jasmine-spec-server'
 
   # Register tasks
-  grunt.registerTask 'compile', ['coffee', 'exec:mkbuild', 'closureCompiler',
-                                 'copy:build']
+  grunt.registerTask 'compile', ['exec:mkbuild', 'coffee', 'less:dev'
+                                 'closureCompiler', 'copy:build',
+                                 'exec:process_source_maps']
   grunt.registerTask 'deps', ['coffee', 'closureDepsWriter']
   grunt.registerTask 'test', ['deps', 'jasmine', 'clean:test']
   grunt.registerTask 'server', ['deps', 'jasmineSpecServer', 'watch']
