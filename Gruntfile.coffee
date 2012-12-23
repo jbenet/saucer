@@ -8,26 +8,32 @@ module.exports = (grunt) ->
     # build directory
     build_dir: 'build'
 
+    # -- sources --
+
     # coffescript sources
     coffee_dir: 'coffee'
     coffee_src: 'coffee/**/*.coffee'
-
-    # javascript sources
-    js_dir: 'js'
-    js_src: 'js/src/**/*.js'
-    js_specs: 'js/test/**/*.spec.js'
 
     # less sources
     less_dir: 'less'
     less_src: 'less/**/*.less'
 
+    # -- compiled output --
+
+    # javascript sources
+    js_dir: 'build/js'
+    js_src: 'build/js/src/**/*.js'
+    js_specs: 'build/js/test/**/*.spec.js'
+
     # css sources
-    css_dir: 'css'
-    css_src: 'css/**/*.css'
-    css_dest: 'css/hello.css'
+    css_dir: 'build/css'
+    css_src: 'build/css/**/*.css'
+    css_dest: 'build/css/hello.css'
 
     # minified target name
     minified: 'build/projectname.min.js'
+
+    # -- libraries --
 
     # libraries to load in the frontend
     frontend_libs: [
@@ -39,7 +45,7 @@ module.exports = (grunt) ->
     ]
 
 
-  # YOU SHOULD NOT NEED TO MODIFY BELOW THIS LINE.
+  # -- YOU SHOULD NOT NEED TO MODIFY BELOW THIS LINE --
   # you may have to... if things break...
 
 
@@ -189,12 +195,6 @@ module.exports = (grunt) ->
 
     # task to clean up directories
     clean:
-
-      # the generated javascript sources
-      js: paths.js_dir
-
-      # the generated css sources
-      css: paths.css_dir
 
       # the generated build dir
       build: paths.build_dir
