@@ -5,6 +5,9 @@ module.exports = (grunt) ->
   # paths setup - separate as some modules dont process templates correctly
   paths =
 
+    # build directory
+    build_dir: 'build'
+
     # coffescript sources
     coffee_dir: 'coffee'
     coffee_src: 'coffee/**/*.coffee'
@@ -14,8 +17,14 @@ module.exports = (grunt) ->
     js_src: 'js/src/**/*.js'
     js_specs: 'js/test/**/*.spec.js'
 
-    # build directory
-    build_dir: 'build'
+    # less sources
+    less_dir: 'less'
+    less_src: 'less/**/*.less'
+
+    # css sources
+    css_dir: 'css'
+    css_src: 'css/**/*.css'
+    css_dest: 'css/hello.css'
 
     # minified target name
     minified: 'build/projectname.min.js'
@@ -113,6 +122,20 @@ module.exports = (grunt) ->
           preserve_dirs: true
           base_path: paths.coffee_dir
 
+    # task to compile .less stylesheets to .css
+    less:
+      # .less -> .css compilation and minification
+      prod:
+        src: paths.less_src
+        dest: paths.css_dest
+        options:
+          yuicompress: true
+
+      # .less -> .css compilation only
+      dev:
+        src: paths.less_src
+        dest: paths.css_dest
+
     # task to compute file dependencies (closure)
     closureDepsWriter:
       default:
@@ -170,6 +193,9 @@ module.exports = (grunt) ->
       # the generated javascript sources
       js: paths.js_dir
 
+      # the generated css sources
+      css: paths.css_dir
+
       # the generated build dir
       build: paths.build_dir
 
@@ -183,13 +209,14 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-coffee'
   grunt.loadNpmTasks 'grunt-contrib-copy'
   grunt.loadNpmTasks 'grunt-contrib-clean'
+  grunt.loadNpmTasks 'grunt-contrib-less'
   grunt.loadNpmTasks 'grunt-closure-tools'
   grunt.loadNpmTasks 'grunt-jasmine-runner'
   grunt.loadNpmTasks 'grunt-jasmine-spec-server'
 
   # Register tasks
-  grunt.registerTask 'compile', ['coffee', 'exec:mkbuild', 'closureCompiler',
-                                 'copy:build']
+  grunt.registerTask 'compile', ['exec:mkbuild', 'coffee', 'less:dev'
+                                 'closureCompiler', 'copy:build']
   grunt.registerTask 'deps', ['coffee', 'closureDepsWriter']
   grunt.registerTask 'test', ['deps', 'jasmine', 'clean:test']
   grunt.registerTask 'server', ['deps', 'jasmineSpecServer', 'watch']
