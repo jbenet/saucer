@@ -88,6 +88,9 @@ module.exports = (grunt) ->
     # output file for the compiler
     compiled: paths.minified
 
+    # source map output filepath
+    source_map: "#{paths.minified}.map"
+
     # root of the sources that closure should use
     # silliness. because depswriter.py uses paths relative to closure library
     root_with_prefix: "'#{paths.js_dir} ../../../../../#{paths.js_dir}'"
@@ -165,6 +168,8 @@ module.exports = (grunt) ->
            # summary_detail_level: 3,
            js_output_file: paths.closure.compiled
            output_wrapper: '"\'use strict\';\n(function(){%output%}).call(this);"'
+           create_source_map: paths.closure.source_map
+           source_map_format: "V3"
 
     # task to run jasmine tests through the commandline via phantomjs
     jasmine:
@@ -183,11 +188,6 @@ module.exports = (grunt) ->
       files: paths.coffee_src
       tasks: 'deps' # or 'test', or 'server' :)
 
-    # task to run shell commands
-    exec:
-      # create the build directory. closure errors out if it isn't there...
-      mkbuild: command: "mkdir -p \"#{paths.build_dir}\""
-
     # task to copy files into build
     copy:
       build:
@@ -201,6 +201,19 @@ module.exports = (grunt) ->
 
       # the generated jasmine-runner tester file
       test: ['_SpecRunner.html']
+
+    # task to run shell commands
+    exec:
+      # create the build directory. closure errors out if it isn't there...
+      mkbuild: command: "mkdir -p \"#{paths.build_dir}\""
+
+      process_source_maps:
+        stdout: true
+        command: (grunt) ->
+          "python build_scripts/process_source_maps.py
+           --compiled-source=#{paths.closure.compiled}
+           --source-map=#{paths.closure.source_map}
+           --web-root=#{paths.build_dir}"
 
 
 
@@ -216,7 +229,8 @@ module.exports = (grunt) ->
 
   # Register tasks
   grunt.registerTask 'compile', ['exec:mkbuild', 'coffee', 'less:dev'
-                                 'closureCompiler', 'copy:build']
+                                 'closureCompiler', 'copy:build',
+                                 'exec:process_source_maps']
   grunt.registerTask 'deps', ['coffee', 'closureDepsWriter']
   grunt.registerTask 'test', ['deps', 'jasmine', 'clean:test']
   grunt.registerTask 'server', ['deps', 'jasmineSpecServer', 'watch']
